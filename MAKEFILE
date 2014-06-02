@@ -1,0 +1,5 @@
+# Makefile
+LDFLAGS=-lncurses
+
+all: main.c
+	g++ $(LDFLAGS) -o main main.cpp

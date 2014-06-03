@@ -1,7 +1,9 @@
+#include <stdlib.h>
 #include <ncurses.h>
 #include <unistd.h>
 #include <stdio.h>
 
+//The graphics service includes function calls to draw objects
 class Graphics
 {
 public:
@@ -10,53 +12,15 @@ public:
 		noecho();
 		curs_set(FALSE);
 	}
-	void draw(char* sprite, int x, int y){
-		mvprintw(x,y,sprite);
+	void draw( int x, int y, char sprite){
+		mvprintw(x, y, "%c", sprite);
 	}
 	void refreshScreen(){
 		refresh();
 	}
 };
 
-class World
-{
-public:
-	World(){
-		WIDTH = 10;
-		HEIGHT = 10;
-		for (int i = 0; i < HEIGHT; i++){
-			for (int j = 0; j < WIDTH; j++){
-				if (i==0 || i==9 || j==0 || j==9){
-					worldArray[i][j] = "1";
-				} else {
-					worldArray[i][j] = "0";
-				}
-			}
-		}
-	}
-
-	//Returns true if the block is passable, otherwise returns false
-	bool resolveCollision(int x, int y){
-		if (worldArray[x][y] == 0){
-			return true;
-		} 
-		else return false;
-	}
-	void update(Graphics& graphics){
-		for (int i = 0; i < HEIGHT; i++){
-			for (int j = 0; j < WIDTH; j++){
-				graphics.draw(worldArray[i][j],i,j);
-			}
-		}
-	}
-private:
-	int WIDTH;
-	int HEIGHT;
-	char* worldArray[10][10];
-};
-
-
-
+//This service is responsible for getting input from the user.
 class Controller
 {
 public:
@@ -76,6 +40,48 @@ public:
 		return getch();
 	}
 };
+
+//The world class includes function calls to resolve collision errors, is responsible for
+//updating the world, etc.
+class World
+{
+public:
+	World(){
+		WIDTH = 10;
+		HEIGHT = 10;
+		for (int i = 0; i < HEIGHT; i++){
+			for (int j = 0; j < WIDTH; j++){
+				if (i==0 || i==9 || j==0 || j==9){
+					worldArray[i][j] = 1;
+				} else {
+					worldArray[i][j] = 0;
+				}
+			}
+		}
+	}
+
+	//Returns true if the block is passable, otherwise returns false
+	bool resolveCollision(int x, int y){
+		if (worldArray[x][y] == 0){
+			return true;
+		} 
+		else return false;
+	}
+	void update(Graphics& graphics){
+		for (int i = 0; i < HEIGHT; i++){
+			for (int j = 0; j < WIDTH; j++){
+				if (worldArray[i][j] == 1){ graphics.draw(i,j,'1'); }
+				else { graphics.draw(i,j,'0'); }
+			}
+		}
+	}
+private:
+	int WIDTH;
+	int HEIGHT;
+	int worldArray[10][10];
+};
+
+
 
 class GameObject;
 
@@ -166,15 +172,15 @@ class MobGraphicsComponent : public GraphicsComponent
 {
 public:
 	MobGraphicsComponent(){
-		spriteNormal = "@";
+		spriteNormal = '@';
 	}
 	virtual void update(GameObject& obj, Graphics& graphics){
-		char* sprite = spriteNormal;
+		char sprite = spriteNormal;
 		//if mob is hurt, change, etc.
-		graphics.draw(sprite, obj.x, obj.y);
+		graphics.draw(obj.x, obj.y, sprite);
 	}
 private:
-	char* spriteNormal;
+	char spriteNormal;
 	//spriteHurt, spriteThirsty, etc.
 	//additionally add support for blinking sprites
 };
@@ -196,8 +202,8 @@ int main(int argc, char* argv[]){
 	GameObject* Player = createPlayer();
 	
 	while (true){
-		Player->update(world, graphics);
-		world->update(graphics);
+		Player->update(*world, *graphics);
+		world->update(*graphics);
 		refresh();
 	}
 		

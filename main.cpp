@@ -23,6 +23,9 @@ public:
 	void render(){
 		refresh();
 	}
+	void stopGraphics(){
+		endwin();
+	}
 };
 
 //This service is responsible for getting input from the user.
@@ -31,7 +34,6 @@ class Keyboard
 public:
 	Keyboard(){
 		nodelay(stdscr,TRUE);
-		currentKey = 0;
 	}
 	static bool kbhit(){
 		int ch = getch();
@@ -42,16 +44,22 @@ public:
 			return FALSE;
 		}
 	}
-//	static update(){
-//		if (kbhit()){
-//			currentKey = getch();
-//	}
 	static int getInput(){
-//		return currentKey;
-		return getch();
+		if (kbhit()){
+			return getch();
+		} else {
+			return 0;
+		}
 	}
-private:
-	int currentKey;
+	static int checkInput(){
+		if (kbhit()){
+			int ch = getch();
+			ungetch(ch);
+			return ch;
+		} else {
+			return 0;
+		}
+	}
 };
 
 //The world class includes function calls to resolve collision errors, is responsible for
@@ -152,21 +160,20 @@ class PlayerInputComponent : public InputComponent
 public:
 	~PlayerInputComponent() {};
 	void update(GameObject* obj){
-		if (Keyboard::kbhit()) {
-			switch (Keyboard::getInput()){
-				case KEY_UP:
-					obj->yv = -1;
-					break;
-				case KEY_DOWN:
-					obj->yv = 1;
-					break;
-				case KEY_LEFT:
-					obj->xv = -1;
-					break;
-				case KEY_RIGHT:
-					obj->xv = 1;
-					break;
-			}
+		mvprintw(0,11,"Player Input Component Update");
+		switch (Keyboard::getInput()){
+			case KEY_UP:
+				obj->yv = -1;
+				break;
+			case KEY_DOWN:
+				obj->yv = 1;
+				break;
+			case KEY_LEFT:
+				obj->xv = -1;
+				break;
+			case KEY_RIGHT:
+				obj->xv = 1;
+				break;
 		}
 	}
 };
@@ -227,8 +234,10 @@ int main(int argc, char* argv[]){
 	const int FRAMES_PER_SECOND = 30;
 	const int MS_PER_UPDATE = 50;
 	double lag = 0.0;
+	
+	bool RUNNING = TRUE;
 		
-	while (true) {
+	while (RUNNING) {
 		gettimeofday(&current, NULL);
 		elapsed = (current.tv_sec - previous.tv_sec) * 1000.0;
 		elapsed += (current.tv_usec - previous.tv_usec) / 1000.0;
@@ -242,8 +251,9 @@ int main(int argc, char* argv[]){
 		//a menu would exit the game loop and go to the menu loop. If it were not a menu
 		//command, however, it would put the key-press back using ungetch, leaving it to
 		//be processed by the various input controllers. I think that will work.
-//		keyboard->update();
-			
+		if (Keyboard::checkInput() == '\n'){
+			RUNNING = FALSE;
+		}	
 
 		while (lag >= MS_PER_UPDATE) {
 			world->update(graphics);
@@ -253,5 +263,6 @@ int main(int argc, char* argv[]){
 		
 		graphics->render();
 	}
-		
+	
+	graphics->stopGraphics();	
 }

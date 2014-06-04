@@ -2,6 +2,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <iostream>
 
 //The graphics service includes function calls to draw objects
 class Graphics
@@ -21,7 +22,7 @@ public:
 };
 
 //This service is responsible for getting input from the user.
-class Controller
+class Keyboard
 {
 public:
 	void initialize(){
@@ -67,11 +68,11 @@ public:
 		} 
 		else return false;
 	}
-	void update(Graphics& graphics){
+	void update(Graphics* graphics){
 		for (int i = 0; i < HEIGHT; i++){
 			for (int j = 0; j < WIDTH; j++){
-				if (worldArray[i][j] == 1){ graphics.draw(i,j,'1'); }
-				else { graphics.draw(i,j,'0'); }
+				if (worldArray[i][j] == 1){ graphics->draw(i,j,'1'); }
+				else { graphics->draw(i,j,' '); }
 			}
 		}
 	}
@@ -88,22 +89,22 @@ class GameObject;
 class InputComponent
 {
 public:
-	virtual ~InputComponent() {}
-	virtual void update(GameObject& obj) = 0;
+	virtual ~InputComponent() {};
+	virtual void update(GameObject* obj) = 0;
 };
 
 class PhysicsComponent
 {
 public:
-	virtual ~PhysicsComponent() {}
-	virtual void update(GameObject& obj, World& world) = 0;
+	virtual ~PhysicsComponent() {};
+	virtual void update(GameObject* obj, World* world) = 0;
 };
 
 class GraphicsComponent
 {
 public:
-	virtual ~GraphicsComponent() {}
-	virtual void update(GameObject& obj, Graphics& graphics) = 0;
+	virtual ~GraphicsComponent() {};
+	virtual void update(GameObject* obj, Graphics* graphics) = 0;
 };
 
 class GameObject
@@ -120,10 +121,10 @@ public:
 	  graphics_(graphics)
 	{}
 	
-	void update(World& world, Graphics& graphics){
-		input_->update(*this);
-		physics_->update(*this, world);
-		graphics_->update(*this, graphics);
+	void update(World* world, Graphics* graphics){
+		input_->update(this);
+		physics_->update(this, world);
+		graphics_->update(this, graphics);
 	}
 
 private:
@@ -137,19 +138,21 @@ private:
 class PlayerInputComponent : public InputComponent
 {
 public:
-	virtual void update(GameObject& obj){
-		switch (Controller::getDirection()){
+	~PlayerInputComponent() {};
+	void update(GameObject* obj){
+		switch (Keyboard::getDirection()){
 			case KEY_UP:
-				obj.yv = -1;
+				obj->yv = -1;
+				printf("Keyboard Hit");
 				break;
 			case KEY_DOWN:
-				obj.yv = 1;
+				obj->yv = 1;
 				break;
 			case KEY_LEFT:
-				obj.xv = -1;
+				obj->xv = -1;
 				break;
 			case KEY_RIGHT:
-				obj.xv = 1;
+				obj->xv = 1;
 				break;
 		}
 	}
@@ -158,26 +161,28 @@ public:
 class MobPhysicsComponent : public PhysicsComponent
 {
 public:
-	virtual void update(GameObject& obj, World& world){
-		if (world.resolveCollision(obj.x + obj.xv, obj.y + obj.yv)){
-			obj.x += obj.xv;
-			obj.y += obj.yv;
+	~MobPhysicsComponent() {};
+	void update(GameObject* obj, World* world){
+		if (world->resolveCollision(obj->x + obj->xv, obj->y + obj->yv)){
+			obj->x += obj->xv;
+			obj->y += obj->yv;
 		}
-		obj.xv = 0;
-		obj.yv = 0;
+		obj->xv = 0;
+		obj->yv = 0;
 	}
 };
 
 class MobGraphicsComponent : public GraphicsComponent
 {
 public:
+	~MobGraphicsComponent() {};
 	MobGraphicsComponent(){
 		spriteNormal = '@';
 	}
-	virtual void update(GameObject& obj, Graphics& graphics){
+	void update(GameObject* obj, Graphics* graphics){
 		char sprite = spriteNormal;
 		//if mob is hurt, change, etc.
-		graphics.draw(obj.x, obj.y, sprite);
+		graphics->draw(obj->x, obj->y, sprite);
 	}
 private:
 	char spriteNormal;
@@ -196,15 +201,17 @@ int main(int argc, char* argv[]){
 	
 	World* world = new World();
 	
-	Controller* controller = new Controller();
-	controller->initialize();
+	Keyboard* keyboard = new Keyboard();
+	keyboard->initialize();
 	
 	GameObject* Player = createPlayer();
+	Player->x = 5;
+	Player->y = 5;
 	
 	while (true){
-		Player->update(*world, *graphics);
-		world->update(*graphics);
-		refresh();
+		world->update(graphics);
+		Player->update(world, graphics);
+		graphics->refreshScreen();
 	}
 		
 }

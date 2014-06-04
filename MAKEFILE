@@ -1,5 +1,0 @@
-# Makefile
-LDFLAGS=-lncurses -v
-
-g++ $(LDFLAGS) -c main.cpp
-

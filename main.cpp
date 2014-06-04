@@ -2,6 +2,8 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <ctime>
+#include <sys/time.h>
 #include <iostream>
 
 //The graphics service includes function calls to draw objects
@@ -9,14 +11,15 @@ class Graphics
 {
 public:
 	void initialize(){
+		printf("Initializing\n");
 		initscr();
 		noecho();
-		curs_set(FALSE);
+		curs_set(0);
 	}
 	void draw( int x, int y, char sprite){
 		mvprintw(x, y, "%c", sprite);
 	}
-	void refreshScreen(){
+	void render(){
 		refresh();
 	}
 };
@@ -38,6 +41,7 @@ public:
 		}
 	}
 	static int getDirection(){
+		printf("Get direction\n");
 		return getch();
 	}
 };
@@ -142,16 +146,19 @@ public:
 	void update(GameObject* obj){
 		switch (Keyboard::getDirection()){
 			case KEY_UP:
+				printf("Key Up.\n");
 				obj->yv = -1;
-				printf("Keyboard Hit");
 				break;
 			case KEY_DOWN:
+				printf("Key Down.\n");
 				obj->yv = 1;
 				break;
 			case KEY_LEFT:
+				printf("Key Left.\n");
 				obj->xv = -1;
 				break;
 			case KEY_RIGHT:
+				printf("Key Right.\n");
 				obj->xv = 1;
 				break;
 		}
@@ -169,6 +176,7 @@ public:
 		}
 		obj->xv = 0;
 		obj->yv = 0;
+		printf("%d, %d\n",obj->x, obj->y);
 	}
 };
 
@@ -183,6 +191,7 @@ public:
 		char sprite = spriteNormal;
 		//if mob is hurt, change, etc.
 		graphics->draw(obj->x, obj->y, sprite);
+		printf("Drew character\n");
 	}
 private:
 	char spriteNormal;
@@ -195,23 +204,44 @@ GameObject* createPlayer()
 	return new GameObject(new PlayerInputComponent(), new MobPhysicsComponent(), new MobGraphicsComponent());
 }
 
+	
+
 int main(int argc, char* argv[]){
 	Graphics* graphics = new Graphics();
 	graphics->initialize();
-	
-	World* world = new World();
-	
+		
 	Keyboard* keyboard = new Keyboard();
 	keyboard->initialize();
+	
+	World* world = new World();
 	
 	GameObject* Player = createPlayer();
 	Player->x = 5;
 	Player->y = 5;
 	
-	while (true){
-		world->update(graphics);
-		Player->update(world, graphics);
-		graphics->refreshScreen();
+	//The game loop
+	timeval previous, current;
+	double elapsed;
+	gettimeofday(&previous, NULL);
+	const int FRAMES_PER_SECOND = 30;
+	const int MS_PER_UPDATE = 50;
+	double lag = 0.0;
+	
+	while (true) {
+		gettimeofday(&current, NULL);
+		elapsed = (current.tv_sec - previous.tv_sec) * 1000.0;
+		elapsed += (current.tv_usec - previous.tv_usec) / 1000.0;
+		previous = current;
+		lag += elapsed;
+		
+		while (lag >= MS_PER_UPDATE) {
+			world->update(graphics);
+			Player->update(world, graphics);
+			lag -= MS_PER_UPDATE;
+			printf("%lf\n", elapsed);
+		}
+		
+		graphics->render();
 	}
 		
 }

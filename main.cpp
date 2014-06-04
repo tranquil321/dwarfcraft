@@ -10,14 +10,15 @@
 class Graphics
 {
 public:
-	void initialize(){
-		printf("Initializing\n");
+	Graphics(){
 		initscr();
 		noecho();
-		curs_set(0);
+		cbreak();
+		keypad(stdscr, TRUE);
+		curs_set(FALSE);
 	}
 	void draw( int x, int y, char sprite){
-		mvprintw(x, y, "%c", sprite);
+		mvprintw(y, x, "%c", sprite);
 	}
 	void render(){
 		refresh();
@@ -28,10 +29,11 @@ public:
 class Keyboard
 {
 public:
-	void initialize(){
+	Keyboard(){
 		nodelay(stdscr,TRUE);
+		currentKey = 0;
 	}
-	bool kbhit(){
+	static bool kbhit(){
 		int ch = getch();
 		if (ch != ERR){
 			ungetch(ch);
@@ -40,10 +42,16 @@ public:
 			return FALSE;
 		}
 	}
-	static int getDirection(){
-		printf("Get direction\n");
+//	static update(){
+//		if (kbhit()){
+//			currentKey = getch();
+//	}
+	static int getInput(){
+//		return currentKey;
 		return getch();
 	}
+private:
+	int currentKey;
 };
 
 //The world class includes function calls to resolve collision errors, is responsible for
@@ -144,23 +152,21 @@ class PlayerInputComponent : public InputComponent
 public:
 	~PlayerInputComponent() {};
 	void update(GameObject* obj){
-		switch (Keyboard::getDirection()){
-			case KEY_UP:
-				printf("Key Up.\n");
-				obj->yv = -1;
-				break;
-			case KEY_DOWN:
-				printf("Key Down.\n");
-				obj->yv = 1;
-				break;
-			case KEY_LEFT:
-				printf("Key Left.\n");
-				obj->xv = -1;
-				break;
-			case KEY_RIGHT:
-				printf("Key Right.\n");
-				obj->xv = 1;
-				break;
+		if (Keyboard::kbhit()) {
+			switch (Keyboard::getInput()){
+				case KEY_UP:
+					obj->yv = -1;
+					break;
+				case KEY_DOWN:
+					obj->yv = 1;
+					break;
+				case KEY_LEFT:
+					obj->xv = -1;
+					break;
+				case KEY_RIGHT:
+					obj->xv = 1;
+					break;
+			}
 		}
 	}
 };
@@ -176,7 +182,6 @@ public:
 		}
 		obj->xv = 0;
 		obj->yv = 0;
-		printf("%d, %d\n",obj->x, obj->y);
 	}
 };
 
@@ -191,7 +196,6 @@ public:
 		char sprite = spriteNormal;
 		//if mob is hurt, change, etc.
 		graphics->draw(obj->x, obj->y, sprite);
-		printf("Drew character\n");
 	}
 private:
 	char spriteNormal;
@@ -208,10 +212,7 @@ GameObject* createPlayer()
 
 int main(int argc, char* argv[]){
 	Graphics* graphics = new Graphics();
-	graphics->initialize();
-		
 	Keyboard* keyboard = new Keyboard();
-	keyboard->initialize();
 	
 	World* world = new World();
 	
@@ -226,7 +227,7 @@ int main(int argc, char* argv[]){
 	const int FRAMES_PER_SECOND = 30;
 	const int MS_PER_UPDATE = 50;
 	double lag = 0.0;
-	
+		
 	while (true) {
 		gettimeofday(&current, NULL);
 		elapsed = (current.tv_sec - previous.tv_sec) * 1000.0;
@@ -234,11 +235,20 @@ int main(int argc, char* argv[]){
 		previous = current;
 		lag += elapsed;
 		
+		//Here is where an input update instruction would go, but I don't know how I
+		//should handle this. Should I get rid of the calls to the keyboard service in
+		//my player input controller and have it instead get all its data from here?
+		//This input update step would check the input, and if it were a command to go to
+		//a menu would exit the game loop and go to the menu loop. If it were not a menu
+		//command, however, it would put the key-press back using ungetch, leaving it to
+		//be processed by the various input controllers. I think that will work.
+//		keyboard->update();
+			
+
 		while (lag >= MS_PER_UPDATE) {
 			world->update(graphics);
 			Player->update(world, graphics);
 			lag -= MS_PER_UPDATE;
-			printf("%lf\n", elapsed);
 		}
 		
 		graphics->render();

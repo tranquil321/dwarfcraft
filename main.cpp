@@ -12,11 +12,14 @@ int main(int argc, char* argv[]){
 	Graphics* graphics = new Graphics();
 	Keyboard* keyboard = new Keyboard();
 	
-	World* world = new World(20, 20);
+	int worldWidth = 19;
+	int worldHeight = 19;
+
+	World* world = new World(worldWidth, worldHeight);
 	
 	GameObject* Player = createPlayer();
-	Player->x = 5;
-	Player->y = 5;
+	Player->x = worldWidth/2;
+	Player->y = worldHeight/2;
 	
 	//The game loop
 	timeval previous, current;

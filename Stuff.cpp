@@ -16,148 +16,122 @@
 #include "Stuff.hpp"
 
 //The graphics service includes function calls to draw objects
-class Graphics {
-public:
-	Graphics() {
-		initscr();
-		noecho();
-		cbreak();
-		keypad(stdscr, TRUE);
-		curs_set(FALSE);
-	}
-	void draw(int x, int y, char sprite) {
-		mvprintw(y, x, "%c", sprite);
-	}
-	void render() {
-		refresh();
-	}
-	void stopGraphics() {
-		endwin();
-	}
-};
+Graphics::Graphics() {
+	initscr();
+	noecho();
+	cbreak();
+	keypad(stdscr, TRUE);
+	curs_set(FALSE);
+}
+void Graphics::draw(int x, int y, char sprite) {
+	mvprintw(y, x, "%c", sprite);
+}
+void Graphics::render() {
+	refresh();
+}
+void Graphics::stopGraphics() {
+	endwin();
+}
 
 //This service is responsible for getting input from the user.
-class Keyboard {
-public:
-	Keyboard() {
-		nodelay(stdscr, TRUE);
+Keyboard::Keyboard() {
+	nodelay(stdscr, TRUE);
+}
+bool Keyboard::hasNewKey() {
+	int ch = getch();
+	if (ch != ERR) {
+		ungetch(ch);
+		return TRUE;
+	} else {
+		return FALSE;
 	}
-	static bool hasNewKey() {
+}
+int Keyboard::getInput() {
+	if (hasNewKey()) {
+		return getch();
+	} else {
+		return 0;
+	}
+}
+int Keyboard::checkInput() {
+	if (hasNewKey()) {
 		int ch = getch();
-		if (ch != ERR) {
-			ungetch(ch);
-			return TRUE;
-		} else {
-			return FALSE;
-		}
+		ungetch(ch);
+		return ch;
+	} else {
+		return 0;
 	}
-	static int getInput() {
-		if (hasNewKey()) {
-			return getch();
-		} else {
-			return 0;
-		}
-	}
-	static int checkInput() {
-		if (hasNewKey()) {
-			int ch = getch();
-			ungetch(ch);
-			return ch;
-		} else {
-			return 0;
-		}
-	}
-};
+}
 
 //The world class includes function calls to resolve collision errors, is responsible for
 //updating the world, etc.
-class World {
-public:
-	World(uint w, uint h) {
-		WIDTH = w;
-		HEIGHT = h;
+World::World(uint w, uint h) {
+	WIDTH = w;
+	HEIGHT = h;
 
-		worldArray = (int**) malloc(sizeof(int) * w);
+	this->worldArray = (int**) malloc(sizeof(int) * w);
 
-		for (int i = 0; i < HEIGHT; i++) {
-			worldArray[i] = (int*) malloc(sizeof(int) * h);
-			for (int j = 0; j < WIDTH; j++) {
-				if (i == 0 || i == HEIGHT - 1 || j == 0 || j == WIDTH - 1) {
-					worldArray[i][j] = 1;
-				} else {
-					worldArray[i][j] = 0;
-				}
+	for (int i = 0; i < HEIGHT; i++) {
+		worldArray[i] = (int*) malloc(sizeof(int) * h);
+		for (int j = 0; j < WIDTH; j++) {
+			if (i == 0 || i == HEIGHT - 1 || j == 0 || j == WIDTH - 1) {
+				worldArray[i][j] = 1;
+			} else if(i == 1) {
+				worldArray[i][j] = 2;
+			} else {
+				worldArray[i][j] = 0;
 			}
 		}
 	}
-	~World() {
-		delete[] worldArray;
-	}
+}
+World::~World() {
+	delete[] worldArray;
+}
 
-	//Returns true if the block is passable, otherwise returns false
-	bool resolveCollision(int x, int y) {
-		if (worldArray[x][y] == 0) {
-			return true;
-		} else
-			return false;
-	}
-	void update(Graphics* graphics) {
-		for (int i = 0; i < HEIGHT; i++) {
-			for (int j = 0; j < WIDTH; j++) {
-				if (worldArray[i][j] == 1) {
-					graphics->draw(i, j, '1');
-				} else {
-					graphics->draw(i, j, ' ');
-				}
+//Returns true if the block is passable, otherwise returns false
+bool World::resolveCollision(int x, int y) {
+	if (worldArray[x][y] == 0) {
+		return true;
+	} else
+		return false;
+}
+void World::update(Graphics* graphics) {
+	for (int i = 0; i < HEIGHT; i++) {
+		for (int j = 0; j < WIDTH; j++) {
+			switch(worldArray[i][j]) {
+			case 1:
+				graphics->draw(i, j, '#');
+				break;
+			case 0:
+				graphics->draw(i, j, ' ');
+				break;
+			case 2:
+				graphics->draw(i, j, '^');
+				break;
 			}
 		}
 	}
-private:
-	int WIDTH;
-	int HEIGHT;
-	int** worldArray;
-};
+}
 
-InputComponent::~InputComponent() {};
-void InputComponent::update(GameObject* obj) = 0;
 
-class PhysicsComponent {
-public:
-	virtual ~PhysicsComponent() {
-	}
-	;
-	virtual void update(GameObject* obj, World* world) = 0;
-};
+InputComponent::~InputComponent(){};
+PhysicsComponent::~PhysicsComponent(){};
+GraphicsComponent::~GraphicsComponent(){};
+void GraphicsComponent::update(GameObject* obj, Graphics* graphics){};
 
-class GraphicsComponent {
-public:
-	virtual ~GraphicsComponent() {
-	}
-	;
-	virtual void update(GameObject* obj, Graphics* graphics) = 0;
-};
 
-class GameObject {
-public:
-	int x, y;
-	int xv, yv;
 
-	GameObject(InputComponent* input, PhysicsComponent* physics,
-			GraphicsComponent* graphics) :
-			input_(input), physics_(physics), graphics_(graphics) {
-	}
 
-	void update(World* world, Graphics* graphics) {
-		input_->update(this);
-		physics_->update(this, world);
-		graphics_->update(this, graphics);
-	}
+GameObject::GameObject(InputComponent* input, PhysicsComponent* physics,
+		GraphicsComponent* graphics) :
+		input_(input), physics_(physics), graphics_(graphics) {
+}
 
-private:
-	InputComponent* input_;
-	PhysicsComponent* physics_;
-	GraphicsComponent* graphics_;
-};
+void GameObject::update(World* world, Graphics* graphics) {
+	input_->update(this);
+	physics_->update(this, world);
+	graphics_->update(this, graphics);
+}
 
 class PlayerInputComponent: public InputComponent {
 public:

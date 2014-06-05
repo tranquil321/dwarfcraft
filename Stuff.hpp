@@ -18,6 +18,7 @@
 class Graphics {
 public:
 	Graphics();
+	~Graphics();
 	void draw(int x, int y, char sprite);
 	void render();
 	void stopGraphics();
@@ -39,18 +40,19 @@ public:
 private:
 	int WIDTH;
 	int HEIGHT;
+	int** worldArray;
 };
 
 class GameObject;
 class InputComponent {
 public:
 	virtual ~InputComponent();
-	virtual void update(GameObject* obj);
+	virtual void update(GameObject* obj) = 0;
 };
 class PhysicsComponent{
 public:
 	virtual ~PhysicsComponent();
-	virtual void update(GameObject* obj, World* world);
+	virtual void update(GameObject* obj, World* world) = 0;
 };
 
 class GraphicsComponent {

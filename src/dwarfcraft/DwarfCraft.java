@@ -1,12 +1,19 @@
 package dwarfcraft;
 
 import java.awt.BorderLayout;
+import java.awt.event.KeyEvent;
 import java.util.Date;
+import java.util.Timer;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import component.control.PlayerInputComponent;
 import component.graphics.GraphicsComponent;
+import component.graphics.MobGraphicsComponent;
+import component.physics.MobPhysicsComponent;
+import dwarfcraft.entity.Entity;
+import dwarfcraft.world.World2D;
 import services.ServiceLocator;
 import services.graphics.GraphicsService2D;
 import services.input.InputService;
@@ -14,36 +21,24 @@ import services.input.KeyboardInputService;
 
 public class DwarfCraft {
 
-//	private static Entity createPlayer() {
-//		return new Entity(new PlayerInputComponent(), new MobPhysicsComponent(),
-//				new MobGraphicsComponent());
-//	}
-
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		
-		int worldWidth = 19;
-		int worldHeight = 19;
+		int worldSize = 250;
 		
 		ServiceLocator.setInput(new KeyboardInputService());
 		final InputService kb = ServiceLocator.getInput();
-		final World3D world = new World3D(worldWidth, worldHeight);
+		final World2D world = new World2D(worldSize);
 		final GraphicsService2D graphics = new GraphicsService2D(world);
 		
-//		Entity player = DwarfCraft.createPlayer();
-//		player.x = worldWidth/2;
-//		player.y = worldHeight/2;
+		
+		Entity player = new Entity.Player("Player");
+		player.setLocation(worldSize/2, worldSize/2);
 
 		
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				JFrame frame = new JFrame("Testing!");
-				frame.setSize(800, 600);
-				frame.setLocationRelativeTo(null);
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				frame.getContentPane().setLayout(new BorderLayout());
-				frame.getContentPane().add(graphics, BorderLayout.CENTER);
-				frame.setVisible(true);
+				graphics.setVisible(true);
 			}
 		});
 		
@@ -65,20 +60,19 @@ public class DwarfCraft {
 			previous = current;
 			lag += elapsed;
 			
-//			if (kb.getKey() == '\n'){
-//				RUNNING = false;
-//			}	
-//
-//			while (lag >= MS_PER_UPDATE) {
-//				world->update(graphics);
-//				Player->update(world, graphics);
-//				lag -= MS_PER_UPDATE;
-//			}
-//			
-//			graphics.render();
+			if (kb.isKeyPressed(KeyEvent.VK_ENTER)){
+				RUNNING = false;
+			}	
+
+			while (lag >= MS_PER_UPDATE) {
+				player.update(world, graphics);
+				lag -= MS_PER_UPDATE;
+			}
+			
+			graphics.render();
+			
 		}
 		
-//		graphics->stopGraphics();	
-//		world->~World();
+		graphics.stopGraphics();	
 	}
 }

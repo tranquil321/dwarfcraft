@@ -46,10 +46,12 @@ public class DwarfCraft {
 		//The game loop
 		long previous, current;
 		long elapsed;
+		long totalTime;
 		previous = (new Date()).getTime();
 		
 		int FRAMES_PER_SECOND = 30;
 		int MS_PER_UPDATE = 50;
+		int MAX_FRAME_RATE = 60;
 		double lag = 0.0;
 		
 		boolean RUNNING = true;
@@ -71,6 +73,10 @@ public class DwarfCraft {
 			
 			graphics.render();
 			
+			totalTime = MAX_FRAME_RATE - (new Date()).getTime() + previous;
+			if (totalTime > 0){
+				Thread.sleep(totalTime);
+			}
 		}
 		
 		graphics.stopGraphics();	

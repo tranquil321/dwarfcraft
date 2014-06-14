@@ -81,7 +81,7 @@ public class GraphicsService2D extends JFrame implements GraphicsService, Change
 		super();
 		this.world = world;
 		
-		this.setBackground(Color.BLACK);
+//		this.setBackground(Color.BLACK);
 		
 		this.setSize(1250, 1000);
 		this.setLocationRelativeTo(null);

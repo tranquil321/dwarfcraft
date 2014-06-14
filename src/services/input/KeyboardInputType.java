@@ -1,4 +1,4 @@
-package utils.input;
+package services.input;
 
 public class KeyboardInputType extends InputType {
 

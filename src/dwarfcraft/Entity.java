@@ -1,6 +1,6 @@
 package dwarfcraft;
 
-import utils.graphics.GraphicsService;
+import services.graphics.GraphicsService;
 import component.control.InputComponent;
 import component.physics.PhysicsComponent;
 

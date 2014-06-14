@@ -2,6 +2,6 @@ package component.control;
 
 import component.Component;
 
-public interface InputComponent extends Component{
+public abstract class InputComponent extends Component{
 
 }

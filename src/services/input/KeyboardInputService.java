@@ -1,4 +1,4 @@
-package utils.input;
+package services.input;
 
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;

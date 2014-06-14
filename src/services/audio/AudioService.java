@@ -1,4 +1,4 @@
-package utils.audio;
+package services.audio;
 
 public class AudioService {
 

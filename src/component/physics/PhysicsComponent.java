@@ -2,7 +2,6 @@ package component.physics;
 
 import component.Component;
 
-
-public interface PhysicsComponent extends Component {
+public abstract class PhysicsComponent extends Component {
 	
 }

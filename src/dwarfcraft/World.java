@@ -1,11 +1,5 @@
 package dwarfcraft;
 
-public class World {
-	
-	
-	
-	public World() {
-		
-	}
-	
+public abstract class World<T> {
+	T worldData;
 }

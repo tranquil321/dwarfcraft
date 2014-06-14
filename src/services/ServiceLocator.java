@@ -1,10 +1,10 @@
-package utils;
+package services;
 
-import utils.audio.AudioService;
-import utils.graphics.GraphicsService;
-import utils.input.InputService;
+import services.audio.AudioService;
+import services.graphics.GraphicsService;
+import services.input.InputService;
 
-public class Locator {
+public class ServiceLocator {
 	
 	private static GraphicsService graphics;
 	private static InputService input;
@@ -15,7 +15,7 @@ public class Locator {
 	}
 	
 	public static void setGraphics(GraphicsService g){
-		Locator.graphics = g;
+		ServiceLocator.graphics = g;
 	}
 
 	public static InputService getInput() {
@@ -23,7 +23,7 @@ public class Locator {
 	}
 
 	public static void setInput(InputService input) {
-		Locator.input = input;
+		ServiceLocator.input = input;
 	}
 
 	public static AudioService getAudio() {
@@ -31,7 +31,7 @@ public class Locator {
 	}
 
 	public static void setAudio(AudioService audio) {
-		Locator.audio = audio;
+		ServiceLocator.audio = audio;
 	}
 
 }

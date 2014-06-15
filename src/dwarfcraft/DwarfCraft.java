@@ -2,6 +2,8 @@ package dwarfcraft;
 
 import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Timer;
 
@@ -23,16 +25,18 @@ public class DwarfCraft {
 
 	public static void main(String[] args) throws InterruptedException {
 		
-		int worldSize = 250;
+		int worldSize = 100;
 		
 		ServiceLocator.setInput(new KeyboardInputService());
 		final InputService kb = ServiceLocator.getInput();
 		final World2D world = new World2D(worldSize);
-		final GraphicsService2D graphics = new GraphicsService2D(world);
+		Collection<Entity> entities = new ArrayList<Entity>();
+		final GraphicsService2D graphics = new GraphicsService2D(world, entities );
 		
 		
 		Entity player = new Entity.Player("Player");
 		player.setLocation(worldSize/2, worldSize/2);
+		entities.add(player);
 
 		
 		

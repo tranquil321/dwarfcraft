@@ -66,7 +66,6 @@ public class GraphicsService2D extends JFrame implements GraphicsService,
 						acolor = Color.BLACK;
 						break;
 					}
-
 					g.setColor(acolor);
 					g.fillRect(x * blockWidth, y * blockHeight, blockWidth,
 							blockHeight);
@@ -76,10 +75,10 @@ public class GraphicsService2D extends JFrame implements GraphicsService,
 			for (Entity e : entities) {
 				int size = 16;
 				g.setColor(Color.BLACK);
-				Double loc = e.getLocation();
+				Double pos = e.getPosition();
 				g.fillOval(
-						(int) (loc.x * GraphicsService2D.this.blockWidth - (size / 2)),
-						(int) (loc.y * GraphicsService2D.this.blockHeight - (size / 2)),
+						(int) (pos.x * GraphicsService2D.this.blockWidth - (size / 2)),
+						(int) (pos.y * GraphicsService2D.this.blockHeight - (size / 2)),
 						size, size);
 			}
 		}
@@ -96,6 +95,10 @@ public class GraphicsService2D extends JFrame implements GraphicsService,
 	private JSlider sliderFrequency;
 	private JSlider sliderLacunarity;
 	private JSlider sliderPersistance;
+	private Collection<Entity> entities;
+	private JLabel pLabel;
+	private JLabel lLabel;
+	private JLabel fLabel;
 	private ChangeListener l = new ChangeListener() {
 		public void stateChanged(ChangeEvent e) {
 			float fValue = sliderFrequency.getValue() / 100.0f;
@@ -111,10 +114,6 @@ public class GraphicsService2D extends JFrame implements GraphicsService,
 			GraphicsService2D.this.panel.repaint();
 		}
 	};
-	private Collection<Entity> entities;
-	private JLabel pLabel;
-	private JLabel lLabel;
-	private JLabel fLabel;
 
 	public GraphicsService2D(World<?> world, Collection<Entity> entities) {
 		super();

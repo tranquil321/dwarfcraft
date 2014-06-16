@@ -14,20 +14,7 @@ import dwarfcraft.world.World2D;
 
 public class Entity {
 	
-	public static class Player extends Entity {
-		public Player(String name){
-			this(name, new PlayerInputComponent(), new MobPhysicsComponent(), new MobGraphicsComponent());
-		}
-		
-		public Player(String name, InputComponent input,
-				PhysicsComponent physics, GraphicsComponent graphics) {
-			super(name, input, physics, graphics);
-		}
-	}
-
 	String name = "";
-	private Point2D.Double loc;
-
 	private InputComponent inputComponent;
 	private PhysicsComponent physicsComponent;
 	private GraphicsComponent graphicsComponent;
@@ -41,16 +28,14 @@ public class Entity {
 		physicsComponent.setParentEntity(this);
 		graphicsComponent = graphics;
 		graphicsComponent.setParentEntity(this);
-		this.loc = new Point2D.Double();
 	}
 
-	public Point2D.Double getLocation() {
-		return loc;
+	public Point2D.Double getPosition() {
+		return physicsComponent.getPosition();
 	}
 
-	public void setLocation(double x, double y) {
-		loc.x = x;
-		loc.y = y;
+	public void setPosition(double x, double y) {
+		physicsComponent.setPosition(x, y);
 	}
 
 	public InputComponent getInputComponent() {
@@ -77,7 +62,8 @@ public class Entity {
 		this.graphicsComponent = graphicsComponent;
 	}
 
-	public void update(World2D world, GraphicsService2D graphics) {
-//		System.out.println("Update?");
+	public void update(World2D world, GraphicsService2D graphics, long elapsed) {
+		inputComponent.update();
+		physicsComponent.update(world, elapsed);
 	}
 }

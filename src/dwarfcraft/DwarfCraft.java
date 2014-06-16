@@ -1,20 +1,14 @@
 package dwarfcraft;
 
-import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Timer;
 
-import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import component.control.PlayerInputComponent;
-import component.graphics.GraphicsComponent;
-import component.graphics.MobGraphicsComponent;
-import component.physics.MobPhysicsComponent;
 import dwarfcraft.entity.Entity;
+import dwarfcraft.entity.Player;
 import dwarfcraft.world.World2D;
 import services.ServiceLocator;
 import services.graphics.GraphicsService2D;
@@ -34,8 +28,8 @@ public class DwarfCraft {
 		final GraphicsService2D graphics = new GraphicsService2D(world, entities );
 		
 		
-		Entity player = new Entity.Player("Player");
-		player.setLocation(worldSize/2, worldSize/2);
+		Entity player = new Player("Player");
+		player.setPosition(worldSize/2, worldSize/2);
 		entities.add(player);
 
 		
@@ -71,7 +65,7 @@ public class DwarfCraft {
 			}	
 
 			while (lag >= MS_PER_UPDATE) {
-				player.update(world, graphics);
+				player.update(world, graphics, elapsed);
 				lag -= MS_PER_UPDATE;
 			}
 			

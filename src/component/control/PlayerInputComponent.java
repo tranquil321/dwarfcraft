@@ -1,16 +1,14 @@
 package component.control;
 
 import java.awt.event.KeyEvent;
-import java.util.Collection;
 
-import dwarfcraft.entity.Entity;
 import services.ServiceLocator;
 import services.input.InputService;
 
 public class PlayerInputComponent extends InputComponent {
 
 	private InputService kb;
-	int speed = 10;
+	int speed = 6;
 
 	public PlayerInputComponent() {
 		kb = ServiceLocator.getInput();
@@ -24,11 +22,11 @@ public class PlayerInputComponent extends InputComponent {
 				parent.getPhysicsComponent().setVelocityNorth(0);
 			} else {
 				if(kb.isKeyPressed(KeyEvent.VK_UP)){
-					parent.getPhysicsComponent().setVelocityNorth(speed);
+					parent.getPhysicsComponent().setVelocityNorth(-1*speed);
 				} 
 				
 				if(kb.isKeyPressed(KeyEvent.VK_DOWN)){
-					parent.getPhysicsComponent().setVelocityNorth(-1*speed);
+					parent.getPhysicsComponent().setVelocityNorth(speed);
 				}
 			}
 			
@@ -36,11 +34,11 @@ public class PlayerInputComponent extends InputComponent {
 				parent.getPhysicsComponent().setVelocityEast(0);
 			} else{
 				if(kb.isKeyPressed(KeyEvent.VK_LEFT)){
-					parent.getPhysicsComponent().setVelocityEast(speed);
+					parent.getPhysicsComponent().setVelocityEast(-1*speed);
 				}
 				
 				if(kb.isKeyPressed(KeyEvent.VK_RIGHT)){
-					parent.getPhysicsComponent().setVelocityEast(-1*speed);
+					parent.getPhysicsComponent().setVelocityEast(speed);
 				}
 			}
 		}

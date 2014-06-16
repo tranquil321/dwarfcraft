@@ -16,31 +16,24 @@ public class PlayerInputComponent extends InputComponent {
 
 	public void update() {
 		if(kb.hasNewInput()){
+			System.out.println("New Input!");
 			
-			if (kb.isKeyReleased(KeyEvent.VK_UP)
-					&& kb.isKeyReleased(KeyEvent.VK_DOWN)) {
-				parent.getPhysicsComponent().setVelocityNorth(0);
-			} else {
-				if(kb.isKeyPressed(KeyEvent.VK_UP)){
-					parent.getPhysicsComponent().setVelocityNorth(-1*speed);
-				} 
-				
-				if(kb.isKeyPressed(KeyEvent.VK_DOWN)){
-					parent.getPhysicsComponent().setVelocityNorth(speed);
-				}
-			}
+			double vNorth = 0;
+			vNorth = kb.isKeyPressed(KeyEvent.VK_UP) ? -1*speed : 0;
+			vNorth += kb.isKeyPressed(KeyEvent.VK_DOWN) ? speed : 0;
 			
-			if(kb.isKeyReleased(KeyEvent.VK_LEFT) && kb.isKeyReleased(KeyEvent.VK_RIGHT)){
-				parent.getPhysicsComponent().setVelocityEast(0);
-			} else{
-				if(kb.isKeyPressed(KeyEvent.VK_LEFT)){
-					parent.getPhysicsComponent().setVelocityEast(-1*speed);
-				}
-				
-				if(kb.isKeyPressed(KeyEvent.VK_RIGHT)){
-					parent.getPhysicsComponent().setVelocityEast(speed);
-				}
-			}
+			double vEast = 0;
+			vEast = kb.isKeyPressed(KeyEvent.VK_LEFT) ? -1*speed : 0;
+			vEast += kb.isKeyPressed(KeyEvent.VK_RIGHT) ? speed : 0;
+			
+			parent.getPhysicsComponent().setVelocityNorth(vNorth);
+			parent.getPhysicsComponent().setVelocityEast(vEast);
+			
+//			parent.getPhysicsComponent().setVelocityNorth(kb.isKeyPressed(KeyEvent.VK_UP) ? -1*speed : 0);
+//			parent.getPhysicsComponent().setVelocityNorth(kb.isKeyPressed(KeyEvent.VK_DOWN) ? speed : 0);
+//			parent.getPhysicsComponent().setVelocityEast(kb.isKeyPressed(KeyEvent.VK_LEFT) ? -1*speed : 0);
+//			parent.getPhysicsComponent().setVelocityEast(kb.isKeyPressed(KeyEvent.VK_RIGHT) ? speed : 0);
+			
 		}
 	}
 

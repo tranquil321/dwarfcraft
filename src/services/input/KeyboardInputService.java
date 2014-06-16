@@ -44,7 +44,6 @@ public class KeyboardInputService implements InputService, KeyEventDispatcher {
 	}
 
 	public boolean dispatchKeyEvent(KeyEvent e) {
-//		System.out.println(e.getID() + ": " + KeyEvent.getKeyText(e.getKeyCode()));
 		hasNewInput = hasNewInput || keyMap.add(e.getKeyCode());
 		return false;
 	}
